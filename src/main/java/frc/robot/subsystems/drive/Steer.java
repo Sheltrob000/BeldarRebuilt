@@ -1,5 +1,17 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.LinearQuadraticRegulator;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotController;
+
 public abstract class Steer {
     protected static final class Constants {
         private static final double dtSeconds = 0.020;
@@ -8,32 +20,22 @@ public abstract class Steer {
         private static final double KA = 0.005493643;
         private static final double maxPositionErrorRadians = 0.125;
         private static final double maxVelocityErrorRadiansPerSec = 1;
-        // TODO: create a LinearSystem<N2, N1, N1> called plant and initialize to
-        // LinearSystemId.identifyPositionSystem(kV, kA)
 
+        LinearSystem<N2, N1, N1>plant = LinearSystemId.identifyPositionSystem(KV, KA);
+        Vector<N2>qelms = VecBuilder.fill(maxPositionErrorRadians, maxVelocityErrorRadiansPerSec);
+        Vector<N1>relms = VecBuilder.fill(RobotController.getBatteryVoltage());
+        LinearQuadraticRegulator<N2, N1, N1>controller = new LinearQuadraticRegulator<>(plant, qelms, relms, dtSeconds);
 
-        // TODO: create a Vector<N2> called qelms and initialize to
-        // VecBuilder.fill(maxPositionErrorRadians, maxVelocityErrorRadiansPerSec)
-        
-        // TODO: create a Vector<N1> called relms and initialize to
-        // VecBuilder.fill(RobotController.getBatteryVoltage())
-
-        // TODO: create a LinearQuadraticRegular<N2, N1, N1> called controller and
-        // initialize with appropriate constants
-
-        // TODO: create a double called kP initialize to controller.getK().get(0, 0)
-
-        // TODO: create a double called kI and initialize to 0.0
-
-        // TODO: create a double called kD and initialize to controller.getK().get(0, 1)
-        
-        // TODO: create a double called tolerance and initialize to Math.abs(0.0239 * 2
-        // * Math.PI / Constants.gearing)
+        private final double KP = controller.getK().get(0, 0);
+        private final double KI = 0.0;
+        private final double kD = controller.getK().get(0, 1);
+        private final double tolerance = Math.abs(0.0239 * 2 * Math.PI / Constants.gearing);
     }
 
-    // TODO: create a field of type TrapezoidProfile called trapezoidProfile
-    // TODO: create a field of type PIDController called pidController
-    // TODO: create a field of type SimpleMotorFeedforward called
+
+    private final TrapezoidProfile trapezoidProfile;
+    private final PIDController pidController;
+    private final SimpleMotorFeedforward simpleMotorFeedforward;
 
     public Steer(double kS) {
         // TODO: initialize simpleMotorFeedforward with appropriate constants
