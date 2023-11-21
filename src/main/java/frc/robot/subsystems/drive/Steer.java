@@ -40,6 +40,9 @@ public abstract class Steer {
     public Steer(double kS) {
         // TODO: initialize simpleMotorFeedforward with appropriate constants
         // TODO: initialize pidController with appropriate constants
+        // TODO: create a double called maxVelocity and initialize to simpleMotorFeedforward.maxachievableVelocity(12, 0)
+        // TODO: create a double called maxAcceleration and intialize to simpleMotorFeedforward.maxAchievableAcceleration(12, 0)
+        // TODO: create a Constraints object called contraints and intialize with maxVelocity and maxAcceleration
         // TODO: initialize trapezoidProfile with appropriate constants
         // TODO: setTolerance for the pidController with appropriate constants
     }

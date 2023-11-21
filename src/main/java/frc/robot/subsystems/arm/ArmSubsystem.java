@@ -58,6 +58,15 @@ public abstract class ArmSubsystem extends SubsystemBase {
 
         public ArmSubsystem(double kS) {
                 // TODO: initialize armFeedForward with appropriate constants
+                // TODO: create a double called maxVelocity and initialize to
+                // armFeedForward.maxachievableVelocity(12, 0)
+                // TODO: create a double called maxAcceleration and intialize to
+                // armFeedForward.maxAchievableAcceleration(12, 0)
+                // TODO: create a Constraints object called positionConstraints and intialize
+                // with
+                // maxVelocity and maxAcceleration
+                // TODO: create a Constraints object called velocityContraints and intialize
+                // with maxAcceleration and Double.PositiveInfinity
                 // TODO: initialize positionPIDController with appropriate constants
                 // TODO: initialize velocityPIDController with appropriate constants
                 // TODO: initialize trapezoidProfilePosition with appropriate constants
@@ -148,23 +157,31 @@ public abstract class ArmSubsystem extends SubsystemBase {
         }
 
         public Command createDriveAtVelocityCommand(double degreesPerSecond) {
-                // TODO: create a Runnable called resetControllers and set to () -> velocityPIDController.reset()
-                // TODO: create a Command called resetControllersCommand and initialize to runOnce(resetControllers)
-                // TODO: create a Runnable called driveAtVelocity and set to () -> driveAtVelocity(degreesPerSecond)
-                // TODO: create a Command called driveAtVelocityCommand and initialize to run(driveAtVelocity)
-                // TODO: create a Runnable called endingCleanup and set to () -> setInputVoltage(0.0)
+                // TODO: create a Runnable called resetControllers and set to () ->
+                // velocityPIDController.reset()
+                // TODO: create a Command called resetControllersCommand and initialize to
+                // runOnce(resetControllers)
+                // TODO: create a Runnable called driveAtVelocity and set to () ->
+                // driveAtVelocity(degreesPerSecond)
+                // TODO: create a Command called driveAtVelocityCommand and initialize to
+                // run(driveAtVelocity)
+                // TODO: create a Runnable called endingCleanup and set to () ->
+                // setInputVoltage(0.0)
                 // TODO: create a Command called command and set to
                 // resetControllersCommand
                 // .andThen(driveAtVelocityCommand)
                 // .finallyDo(endingCleanup)
-                // TODO: setName for command to String.format("%s DPS Command", degreesPerSecond)
+                // TODO: setName for command to String.format("%s DPS Command",
+                // degreesPerSecond)
                 // TODO: return command
                 return null; // TODO: remove this line when done
         }
 
         public void setDefaultCommand() {
-                // TODO: create a Runnable called defaultRunnable and set to () -> driveAtVelocity(0.0)
-                // TODO: create a Command called defaultCommand and intialize to runOnce(defaultRunnable)
+                // TODO: create a Runnable called defaultRunnable and set to () ->
+                // driveAtVelocity(0.0)
+                // TODO: create a Command called defaultCommand and intialize to
+                // runOnce(defaultRunnable)
                 // TODO: setName for defaultCommand to String.format("Stop Command")
                 // TODO: setDefaultCommand(defaultCommand);
         }

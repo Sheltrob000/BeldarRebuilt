@@ -43,6 +43,10 @@ public abstract class GrabberSubsystem extends SubsystemBase {
   public GrabberSubsystem(double kS) {
     // TODO: initialize leftSimpleMotorFeedForward with appropriate constants
     // TODO: intialize rightSimpleMotorFeedForward with approrpiate constants
+    // TODO: create a double called maxAcceleration and intialize to
+    // leftSimpleMotorFeedForward.maxAchievableAcceleration(12, 0)
+    // TODO: create a Constraints object called velocityContraints and intialize
+    // with maxAcceleration and Double.PositiveInfinity
     // TODO: initialize leftTrapezoidProfile with appropriate constants
     // TODO: intialize rightTrapezoidProfile with appropriate constants
     // TODO: initialize leftVelocityPIDController with appropriate constants
@@ -130,7 +134,8 @@ public abstract class GrabberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // TODO: lastVelocityLeftGripper = getLeftGripperVelocityRadPerSec and also for right
+    // TODO: lastVelocityLeftGripper = getLeftGripperVelocityRadPerSec and also for
+    // right
   }
 
   // initSendable handles Dashboard

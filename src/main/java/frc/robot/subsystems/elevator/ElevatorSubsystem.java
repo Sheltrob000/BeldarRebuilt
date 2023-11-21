@@ -59,6 +59,14 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
         // TODO: create a double called lastVelocity
 
         public ElevatorSubsystem(double kS) {
+                // TODO: initialize elevatorFeedForward with appropriate constants
+                // TODO: create a double called maxVelocity and initialize to
+                // elevatorFeedForward.maxachievableVelocity(12, 0)
+                // TODO: create a double called maxAcceleration and intialize to
+                // elevatorFeedForward.maxAchievableAcceleration(12, 0)
+                // TODO: create a Constraints object called positionConstraints and intialize with
+                // maxVelocity and maxAcceleration
+                // TODO: create a Constraints object called velocityContraints and intialize with maxAcceleration and Double.PositiveInfinity
                 // TODO: initialize positionTrapezoidProfile
                 // TODO: initialize velocityTrapezoidProfile
                 // TODO: initialize positionPIDController
@@ -163,8 +171,10 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
         }
 
         public void setDefaultCommand() {
-                // TODO: create a Runnable called defaultRunnable and set to () -> driveAtvelocity(0.0)
-                // TODO: create a Command called defaultCommand and initialize with run(defaultRunnable)
+                // TODO: create a Runnable called defaultRunnable and set to () ->
+                // driveAtvelocity(0.0)
+                // TODO: create a Command called defaultCommand and initialize with
+                // run(defaultRunnable)
                 // TODO: setName for defaultCommand to String.format("Stop Command")
                 // TODO: setDefaultCommand(defaultCommand);
         }
