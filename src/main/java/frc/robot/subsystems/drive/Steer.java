@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
@@ -10,7 +11,8 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.ExponentialProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.RobotController;
 
 public abstract class Steer {
@@ -25,7 +27,8 @@ public abstract class Steer {
         private static final LinearSystem<N2, N1, N1> plant = LinearSystemId.identifyPositionSystem(KV, KA);
         private static final Vector<N2> qelms = VecBuilder.fill(maxPositionErrorRadians, maxVelocityErrorRadiansPerSec);
         private static final Vector<N1> relms = VecBuilder.fill(RobotController.getBatteryVoltage());
-        private static final LinearQuadraticRegulator<N2, N1, N1> controller = new LinearQuadraticRegulator<>(plant,qelms, relms, dtSeconds);
+        private static final LinearQuadraticRegulator<N2, N1, N1> controller = new LinearQuadraticRegulator<>(plant,
+                qelms, relms, dtSeconds);
 
         private static final double KP = controller.getK().get(0, 0);
         private static final double KI = 0.0;
@@ -37,15 +40,14 @@ public abstract class Steer {
     private final PIDController pidController;
     private final SimpleMotorFeedforward simpleMotorFeedforward;
 
-    public Steer(double kS) {      
+    public Steer(double kS) {
         simpleMotorFeedforward = new SimpleMotorFeedforward(kS, Constants.KV, Constants.KA);
         pidController = new PIDController(Constants.KP, kS, kS);
         double maxVelocity = simpleMotorFeedforward.maxAchievableVelocity(12, 0);
         double maxAcceleration = simpleMotorFeedforward.maxAchievableAcceleration(12, 0);
-        // TODO: create a Constraints object called contraints and intialize with maxVelocity and maxAcceleration
-        Constraints constraints = new 
-        // TODO: initialize trapezoidProfile with appropriate constants
-        // TODO: setTolerance for the pidController with appropriate constants
+        Constraints constraints = new Constraints(maxVelocity, maxAcceleration);
+        trapezoidProfile = new TrapezoidProfile(constraints);
+        pidController.setTolerance(Constants.maxPositionErrorRadians,Constants.maxVelocityErrorRadiansPerSec);
     }
 
     public abstract double getPositionDegrees();
@@ -55,23 +57,17 @@ public abstract class Steer {
     public abstract void setPositionDegrees(double degrees);
 
     public void turnToPosition(double degrees) {
-        // TODO: create a double called measurementRadians and initialize to
-        // Math.toRadians(getPositionDegrees())
-        // TODO: create a double called measurementRadiansPerSecond and initialize to
-        // Math.toRadians(getVelocityDegreesPerSecond())
-        // TODO: create a double called setPointRadians and initialize to
-        // Math.toRadians(degrees)
-        // TODO: create a double called errorBound and initialize to (pi - -pi) / 2.0
-        // TODO: create a double called difference and intialize
-        // MathUtil.inputModulus(setpointRadians - measurementRadians, -errorBound,
-        // errorBound)
-        // TODO: reassign setpointRadian to measurementRadians + difference;
-        // TODO: create a State called goal and initialize to setpointRadians and 0.0
-        // TODO: create a State called current and initialize to measurementRadians and
-        // measurementRadiansPerSecond
-        // TODO: create a State called achievableSetpoint and initliaze from
-        // trapezoidProfile.calculate
+        double measurementRadians = Math.toRadians(getPositionDegrees());
+        double measurementRadiansPerSecond = Math.toRadians(getVelocityDegreesPerSecond());
+        double setPointRadians = Math.toRadians(degrees);
+        double errorBound = (Math.PI - -Math.PI) / 2.0;
+        double difference = MathUtil.inputModulus(setPointRadians - measurementRadians, -errorBound, errorBound);
+        setPointRadians = measurementRadians + difference;
+        State goal = new State(setPointRadians, 0.0);
+        State current = new State(measurementRadians, measurementRadiansPerSecond);
+        State achievableSetpoint = trapezoidProfile.calculate(setPointRadians, goal, current);
         // TODO: create a double called feedbackVoltage and calculate from pidController
+        double feedbackVoltage = pidController.calculate(measurementRadiansPerSecond, setPointRadians)
         // TODO: create a double called feedforwardVoltage and calculate from
         // simpleMotorFeedforward.calculate(measurementRadiansPerSecond,
         // achievableSetpoint.velocity, dtSeconds)
