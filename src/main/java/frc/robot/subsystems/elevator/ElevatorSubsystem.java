@@ -87,7 +87,7 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
         public abstract void setPositionMeters(double meters);
 
-        public void turnToPosition(double meters) {
+        public void moveToPosition(double meters) {
                 // TODO: create a double called measurement get from getPositionMeters()
                 // TODO: create a double called measurementVelocity get from
                 // getVelocityMetersPerSecond()
@@ -127,22 +127,22 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
         public abstract void setInputVoltage(double voltage);
 
-        public Command createTurnToPositionCommand(double meters) {
+        public Command createMoveToPositionCommand(double meters) {
                 // TODO: create a Runnable called resetControllers and set to () ->
                 // positionPIDController.reset()
                 // TODO: create a Command called resetControllersCommand and initialize with
                 // runOnce(resetControllers)
-                // TODO: create a Runnable called turnToPosition and set to () ->
-                // turnToPosition(meters)
-                // TODO: create a Command called turnToPositionCommand and initialize with
-                // run(turnToPosition)
+                // TODO: create a Runnable called moveToPosition and set to () ->
+                // moveToPosition(meters)
+                // TODO: create a Command called moveToPositionCommand and initialize with
+                // run(moveToPosition)
                 // TODO: create a BooleanSupplier called endingCondition and set to () ->
                 // positionPIDController.atSetpoint()
                 // TODO: create a Runnable called endingCleanupt and set to () ->
                 // driveAtVelocity(0.0)
                 // TODO: create a Command called command and set to
                 // resetControllersCommand
-                // .andThen(turnToPositionCommand)
+                // .andThen(moveToPositionCommand)
                 // .until(endingCondition)
                 // .finallyDo(endingCleanup)
                 // TODO: setName for command to String.format("%s meters Command", meters)
