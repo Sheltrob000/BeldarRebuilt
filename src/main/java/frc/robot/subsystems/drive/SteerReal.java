@@ -1,17 +1,20 @@
 package frc.robot.subsystems.drive;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 public class SteerReal extends Steer {
 
     private static final class Constants {
         private static final double kS = 0.12055;
-        // TODO: create a MotorType called motortype and initialize to MotorType.kBrushless;
+        private static final MotorType motorType = MotorType.kBrushless;
     }
 
-    // TODO: create a field of type CANSparkMax called canSparkMax
+    CANSparkMax canSparkMax;
 
     public SteerReal(int moduleNumber) {
         super(Constants.kS);
-        // TODO: initialize canSparkMax with a deviceId of moduleNumber + 10 and the appropriate constants
+        canSparkMax = new CANSparkMax(moduleNumber + 10, Constants.motorType);
     }
 
     @Override

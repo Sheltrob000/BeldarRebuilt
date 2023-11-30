@@ -42,7 +42,8 @@ public abstract class Steer {
 
     public Steer(double kS) {
         simpleMotorFeedforward = new SimpleMotorFeedforward(kS, Constants.KV, Constants.KA);
-        pidController = new PIDController(Constants.KP, kS, kS);
+        pidController = new PIDController(Constants.KP, Constants.KI, Constants.kD);
+        pidController.setTolerance(Constants.tolerance);
         double maxVelocity = simpleMotorFeedforward.maxAchievableVelocity(12, 0);
         double maxAcceleration = simpleMotorFeedforward.maxAchievableAcceleration(12, 0);
         Constraints constraints = new Constraints(maxVelocity, maxAcceleration);
@@ -66,15 +67,11 @@ public abstract class Steer {
         State goal = new State(setPointRadians, 0.0);
         State current = new State(measurementRadians, measurementRadiansPerSecond);
         State achievableSetpoint = trapezoidProfile.calculate(setPointRadians, goal, current);
-        // TODO: create a double called feedbackVoltage and calculate from pidController
-        double feedbackVoltage = pidController.calculate(measurementRadiansPerSecond, setPointRadians)
-        // TODO: create a double called feedforwardVoltage and calculate from
-        // simpleMotorFeedforward.calculate(measurementRadiansPerSecond,
-        // achievableSetpoint.velocity, dtSeconds)
-        // TODO: create a double called voltage and initialize to the sum of the two
-        // previous voltages
-        // TODO: voltage = MathUtil.clamp(voltage, -12.0, 12.0);
-        // TODO: setInputVoltage to voltage
+        double feedbackVoltage = pidController.calculate(measurementRadians, setPointRadians);
+        double feedforwardVoltage = simpleMotorFeedforward.calculate(measurementRadiansPerSecond, achievableSetpoint.velocity, Constants.dtSeconds);
+        double voltage = feedbackVoltage + feedforwardVoltage;
+        voltage = MathUtil.clamp(voltage, -12.0, 12.0);
+        setInputVoltage(voltage);
     }
 
     public abstract void setInputVoltage(double voltage);
