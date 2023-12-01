@@ -1,53 +1,57 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.hal.SimDevice;
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.SimDevice.Direction;
+import edu.wpi.first.math.system.plant.DCMotor;
+import frc.com.simulation.ModuleSteerSim;
+
 public class SteerSim extends Steer {
 
     private static final class Constants {
         private static final double kS = 0.0;
-        // TODO: create an int numMotors to 1
-        // TODO: create a DCMotor called dcMotor and initialize to DCMotor.getNEO(numMotors);
+        private static final int numMotors = 1;
+        private static final DCMotor dcMotor = DCMotor.getNEO(numMotors);
     }
 
-    // TODO: create a SimDouble field called simRotations
-    // TODO: create a SimDouble field called simRPM
-    // TODO: create a SimDouble field called simCurrent
-    // TODO: create a SimDouble field called simVolts
-    // TODO: create a ModuleSteerSim field called steerSim
+    private final SimDouble simRotations;
+    private final SimDouble simRPM;
+    private final SimDouble simCurrent;
+    private final SimDouble simVolts;
+    private final ModuleSteerSim steerSim;
 
     public SteerSim(int moduleNumber) {
         super(Constants.kS);
-        // TODO: initialize steerSim with appropriate constants
-        // TODO: create a SimDevice called simDevice and initialize to SimDevice.create("NEO", moduleNumber + 10);
-        // TODO: initialize simRotations to simDevice.createDouble("Rotations", Direction.kBidir, 0.0);
-        // TODO: initialize simRPM to simDevice.createDouble("RPM", Direction.kBidir, 0.0);
-        // TODO: initialize simCurrent to simDevice.createDouble("Amps", Direction.kBidir, 0.0);
-        // TODO: initialize simVolts to simDevice.createDouble("Volts", Direction.kBidir, 0.0);
+        steerSim = new ModuleSteerSim(Steer.Constants.KV, Steer.Constants.KA, Constants.dcMotor);
+        SimDevice simDevice = SimDevice.create("NEO", moduleNumber + 10);
+        simRotations = simDevice.createDouble("Rotations", Direction.kBidir, 0.0);
+        simRPM = simDevice.createDouble("RPM", Direction.kBidir, 0.0);
+        simCurrent = simDevice.createDouble("Amps", Direction.kBidir, 0.0);
+        simVolts = simDevice.createDouble("Volts", Direction.kBidir, 0.0);
     }
 
     @Override
     public double getPositionDegrees() {
-        // TODO: return getPositionDegrees() from steerSim
-        return 0.0; // TODO: remove this line when done       
+        return steerSim.getPositionDegrees();
     }
 
     @Override
     public double getVelocityDegreesPerSecond() {
-        // TODO: return getVelocityDegreesPerSecond() from steerSim
-        return 0.0; // TODO: remove this line when done
+        return steerSim.getVelocityDegreesPerSecond();
     }
 
     @Override
     public void setPositionDegrees(double degrees) {
-        // TODO: setPositionDegrees for steerSim
+        steerSim.setPositionDegrees(degrees);
     }
 
     @Override
     public void setInputVoltage(double voltage) {
-        // TODO: set simVolts to voltage
-        // TODO: set simRotations to steerSim.getPositionRadians() * Constants.gearing / 2 / Math.PI)
-        // TODO: set simRPM to steerSim.getVelocityRadiansPerSecond() * 60 * Constants.gearing / 2 / Math.PI)
-        // TODO: set simCurrent to steerSim.getCurrentDrawAmps())
-        // TODO: setInputVoltage for steerSim
-        // TODO: update steerSim with dtSeconds
+        simVolts.set(voltage);
+        simRotations.set(steerSim.getPositionRadians() * Steer.Constants.gearing / 2 / Math.PI);
+        simRPM.set(steerSim.getVelocityRadiansPerSecond() * Steer.Constants.gearing * 60.0 / 2 / Math.PI);
+        simCurrent.set(steerSim.getCurrentDrawAmps());
+        steerSim.setInputVoltage(voltage);
+        steerSim.update(Steer.Constants.dtSeconds);
     }
 }

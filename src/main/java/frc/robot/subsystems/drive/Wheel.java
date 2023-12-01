@@ -7,8 +7,8 @@ package frc.robot.subsystems.drive;
 public abstract class Wheel {
 
     protected static final class Constants {
-        // TODO: create a double called dtSeconds and initialize to 0.020
-        // TODO: create a double called gearing and initialize to 6.75
+        protected static final double dtSeconds = 0.020;
+        protected static final double gearing = 6.75;
         // TODO: create a double called kV and initialize to 2.6158
         // TODO: create a double called kA and initialize to 0.054006
         // TODO: create a double called maxVelocityErrorMetersPerSecond and initialize

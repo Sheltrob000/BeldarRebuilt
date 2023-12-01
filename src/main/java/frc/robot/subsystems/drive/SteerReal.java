@@ -36,12 +36,12 @@ public class SteerReal extends Steer {
     public void setPositionDegrees(double degrees) {
          degrees = MathUtil.inputModulus(degrees, 0, 360);
         double rotations = degrees * Steer.Constants.gearing / 360;
-        // TODO: setPosition for the canSpark encoder to rotations
+        canSparkMax.getEncoder().setPosition(rotations);
         
     }
 
     @Override
     public void setInputVoltage(double voltage) {
-        //TODO: setVoltage for the canSparkMax to voltage
+        canSparkMax.setVoltage(voltage);
     }
 }
