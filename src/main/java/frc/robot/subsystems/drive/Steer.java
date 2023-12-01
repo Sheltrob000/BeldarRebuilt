@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.RobotController;
 public abstract class Steer {
     protected static final class Constants {
         private static final double dtSeconds = 0.020;
-        private static final double gearing = -150.0 / 7.0;
+        protected static final double gearing = -150.0 / 7.0;
         private static final double KV = 0.427607143;
         private static final double KA = 0.005493643;
         private static final double maxPositionErrorRadians = 0.125;

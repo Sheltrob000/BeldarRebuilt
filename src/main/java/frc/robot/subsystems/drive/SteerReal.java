@@ -3,6 +3,8 @@ package frc.robot.subsystems.drive;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
+
 public class SteerReal extends Steer {
 
     private static final class Constants {
@@ -19,24 +21,23 @@ public class SteerReal extends Steer {
 
     @Override
     public double getPositionDegrees() {
-        // TODO: create a double called degrees and initialize to canSparkMax.getEncoder().getPosition() * 360 / Steer.Constants.gearing
-        // TODO: set degrees = MathUtil.inputModulus(degrees, 0, 360)
-        // TODO: return degrees
-        return 0.0;  // TODO: remove this line when done.  
+        double degrees = canSparkMax.getEncoder().getPosition() * 360 / Steer.Constants.gearing;
+        degrees = MathUtil.inputModulus(degrees, 0, 360);
+        return degrees;
     }
 
     @Override
     public double getVelocityDegreesPerSecond() {
-        // TODO: create a double called degreesPerSecond and initialize to canSparkMax.getEncoder().getVelocity() * 360 / 60 / Steer.Constants.gearing;
-        // TODO: return degreesPerSecond
-        return 0.0;  // TODO: remove this line when done. 
+        double degreesPerSecond = canSparkMax.getEncoder().getVelocity() * 360 / 60 / Steer.Constants.gearing;
+        return degreesPerSecond;
     }
 
     @Override
     public void setPositionDegrees(double degrees) {
-        // TODO: create a double called degrees and initialize to MathUtil.inputModulus(degrees, 0, 360);
-        // TODO: create a double called rotations and initialize to degrees * Steer.Constants.gearing / 360;
+         degrees = MathUtil.inputModulus(degrees, 0, 360);
+        double rotations = degrees * Steer.Constants.gearing / 360;
         // TODO: setPosition for the canSpark encoder to rotations
+        
     }
 
     @Override
