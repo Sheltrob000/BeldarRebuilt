@@ -4,25 +4,29 @@
 
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.LinearQuadraticRegulator;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.RobotController;
+
 public abstract class Wheel {
 
     protected static final class Constants {
         protected static final double dtSeconds = 0.020;
         protected static final double gearing = 6.75;
-        // TODO: create a double called kV and initialize to 2.6158
-        // TODO: create a double called kA and initialize to 0.054006
-        // TODO: create a double called maxVelocityErrorMetersPerSecond and initialize
-        // to 24.044
-        // TODO: create a LinearSystem<N1, N1, N1> called plant and initialize to
-        // LinearSystemId.identifyVelocitySystem(kV, kA)
-        // TODO: create a Vector<N1> called qelms and initialize to
-        // VecBuilder.fill(maxVelocityErrorsMetersPerSecond)
-        // TODO: create a Vector<N1> called relms and initialize to
-        // VecBuilder.fill(RobotController.getBatteryVoltage())
-        // TODO: creat a LinearQuadraticRegulator<N1, N1, N1> called controller and
-        // initialize with previous constants
-        // TODO: create a double called kP and initialize with controller.getK().get(0,
-        // 0)
+        protected static final double kV = 2.6158;
+        protected static final double kA = 0.054006;
+        private static final double maxVelocityErrorMetersPerSecond = 24.044;
+        private static final LinearSystem<N1, N1, N1> plant = LinearSystemId.identifyVelocitySystem(kV, kA);
+        private static final Vector<N1> qelms = VecBuilder.fill(maxVelocityErrorMetersPerSecond);
+
+        private static final Vector<N1> relms = VecBuilder.fill(RobotController.getBatteryVoltage());
+        private static final LinearQuadraticRegulator<N1, N1, N1> controller = new LinearQuadraticRegulator<>(plant,
+                qelms, relms, dtSeconds);
+        private static final double kP = controller.getK().get(0, 0);
         // TODO: create a double called kI and initialize to 0.0
         // TODO: create a double called kD and initialize to 0.0
         // TODO: create a double called wheelRadiusMeters and initialize to
