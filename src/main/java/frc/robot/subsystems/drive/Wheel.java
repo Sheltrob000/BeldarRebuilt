@@ -7,9 +7,13 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 
 public abstract class Wheel {
@@ -27,20 +31,20 @@ public abstract class Wheel {
         private static final LinearQuadraticRegulator<N1, N1, N1> controller = new LinearQuadraticRegulator<>(plant,
                 qelms, relms, dtSeconds);
         private static final double kP = controller.getK().get(0, 0);
-        // TODO: create a double called kI and initialize to 0.0
-        // TODO: create a double called kD and initialize to 0.0
-        // TODO: create a double called wheelRadiusMeters and initialize to
-        // Units.inchesToMeters(4.0 / 2.0)
+        private static final double kI = 0.0;
+        private static final double kD = 0.0;
+        private static final double wheelRadiusMeters = Units.inchesToMeters(4.0 / 2.0);
     }
 
-    // TODO: create a field of type TrapezoidProfile called trapezoidProfile
-    // TODO: create a field of type PIDController called pidController
-    // TODO: create a field of type SimpleMotorFeedforward called
-    // simpleMotorFeedforward
-    // TODO: create a field of type double called lastVelocity
+
+    private final TrapezoidProfile trapezoidProfile;
+    private final PIDController pidController;
+    private final SimpleMotorFeedforward simpleMotorFeedforward;
+
+    private double lastVelocity;
 
     public Wheel(double kS) {
-        // TODO: initialize simpleMotorFeedforward with approrpriate constants
+        simpleMotorFeedforward = new SimpleMotorFeedforward(kS, Constants.kV, Constants.kA);
         // TODO: create a double called maxVelocity and initialize to
         // simpleMotorFeedforward.maxachievableVelocity(12, 0)
         // TODO: create a double called maxAcceleration and intialize to
