@@ -13,8 +13,11 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
+
 
 public abstract class Wheel {
 
@@ -36,7 +39,6 @@ public abstract class Wheel {
         private static final double wheelRadiusMeters = Units.inchesToMeters(4.0 / 2.0);
     }
 
-
     private final TrapezoidProfile trapezoidProfile;
     private final PIDController pidController;
     private final SimpleMotorFeedforward simpleMotorFeedforward;
@@ -45,15 +47,12 @@ public abstract class Wheel {
 
     public Wheel(double kS) {
         simpleMotorFeedforward = new SimpleMotorFeedforward(kS, Constants.kV, Constants.kA);
-        // TODO: create a double called maxVelocity and initialize to
-        // simpleMotorFeedforward.maxachievableVelocity(12, 0)
-        // TODO: create a double called maxAcceleration and intialize to
-        // simpleMotorFeedforward.maxAchievableAcceleration(12, 0)
-        // TODO: create a Constraints object called contraints and intialize with
-        // maxVelocity and maxAcceleration
-        // TODO: initialize trapezoidProfile with appropriate constants
-        // TODO: initialize pidController with approrpiate constants
-        // TODO: initialize lastVelocity to 0.0
+        double maxVelocity = simpleMotorFeedforward.maxAchievableVelocity(12, 0);
+        double maxAcceleration = simpleMotorFeedforward.maxAchievableAcceleration(12, 0);
+        Constraints constraints = new Constraints(maxVelocity, maxAcceleration);
+        trapezoidProfile = new TrapezoidProfile(constraints);
+        pidController = new PIDController(Constants.kP, Constants.kI, Constants.kD);
+        lastVelocity = 0.0;
     }
 
     public abstract double getPositionMeters();
@@ -61,24 +60,18 @@ public abstract class Wheel {
     public abstract double getVelocityMetersPerSecond();
 
     public double getAccelerationMetersPerSecondSquared() {
-        // TODO: create a double called current and initialize to
-        // getVelocityMetersPerSecond()
-        // TODO: return (current - lastVelocity) / Constants.dtSeconds
-        return 0.0; // TODO: remove this line when done
+        double current = getVelocityMetersPerSecond();
+        return (current - lastVelocity) / Constants.dtSeconds;
     }
 
     public abstract void setPositionMeters(double meters);
 
     public void driveAtVelocity(double metersPerSecond) {
-        // TODO: create a double called measurementVelocity and initiliaze to
-        // getVelocityMetersPerSecond()
-        // TODO: create a State called goal and initialize with metersPerSeconda and 0.0
-        // TODO: create a State called current and initialize with measurementVelocity
-        // and getAccelerationsMetersPerSecondSquared()
-        // TODO: creat a State called achievableSetpoint and get from
-        // trapezoidProfile.calculate
-        // TODO: create a double called feedbackVoltage and intialize using
-        // pidController's calculate method
+        double measurementVelocity = getVelocityMetersPerSecond();
+        State goal = new State(metersPerSecond, 0.0);
+        State current = new State(measurementVelocity, getAccelerationMetersPerSecondSquared());
+        State achievableSetpoint = trapezoidProfile.calculate(measurementVelocity, goal, current);
+        double feedbackVoltage = pidController.calculate(measurementVelocity, metersPerSecond);
         // TODO: create a double called feedforwardVoltage and initialize wiht
         // simpleMotorFeedforward.calculate(measurementVelocity,
         // achievableSetpoint.position, dtSeconds)
