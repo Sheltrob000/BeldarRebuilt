@@ -4,42 +4,43 @@
 
 package frc.robot.subsystems.drive;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 public class WheelReal extends Wheel {
 
     private static final class Constants {
         private static final double kS = 0.10045;
-        // TODO: create a MotorType called motorType and initialize to MotorType.kBrushless
+        private static final MotorType motorType = MotorType.kBrushless;
     }
 
-    // TODO: create a field of type CANSparkMax called canSparkMax
+    CANSparkMax canSparkMax;
     
     public WheelReal(int moduleNumber) {
         super(Constants.kS);
-        // TODO: initialize canSparkMax a deviceId of moduleNumber + 20 and appropiate constants
+        canSparkMax = new CANSparkMax(moduleNumber + 20,Constants.motorType);
     }
 
     @Override
     public double getPositionMeters() {
-        // TODO: create a double called meters and initialize with canSparkMax.getEncoder().getPosition() * 2 * Math.PI * Wheel.Constants.wheelRadiusMeters / Wheel.Constants.gearing;
-        // TODO: return meters
-        return 0.0; // TODO: remove this line when done
+        double meters = canSparkMax.getEncoder().getPosition() * 2 * Math.PI * Wheel.Constants.wheelRadiusMeters / Wheel.Constants.gearing;
+        return meters;
     }
 
     @Override
     public double getVelocityMetersPerSecond() {
-        // TODO: create a double called metersPerSecond and initialize with canSparkMax.getEncoder().getVelocity() * 2 * Math.PI * Wheel.Constants.wheelRadiusMeters / 60 / Wheel.Constants.gearing;
-        // TODO: return metersPerSecond
-        return 0.0; // TODO: remove this line when done
+        double metersPerSecond = canSparkMax.getEncoder().getVelocity() * 2 * Math.PI * Wheel.Constants.wheelRadiusMeters / 60 / Wheel.Constants.gearing;
+        return metersPerSecond;
     }
 
     @Override
     public void setPositionMeters(double meters) {
-        // TODO: create a double called rotations and initialize with meters * Wheel.Constants.gearing / 2 / Math.PI / Wheel.Constants.wheelRadiusMeters
-        // TODO: setPosition of canSparkMax's encoder to rotations
+        double rotations = meters * Wheel.Constants.gearing / 2 / Math.PI / Wheel.Constants.wheelRadiusMeters;
+        canSparkMax.getEncoder().setPosition(rotations);
     }
 
     @Override
     public void setInputVoltage(double voltage) {
-        // TODO: setVoltage of the canSparkMax to voltage
+        canSparkMax.setVoltage(voltage);
     }
 }

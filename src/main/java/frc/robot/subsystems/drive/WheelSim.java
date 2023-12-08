@@ -4,24 +4,29 @@
 
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.hal.SimDevice;
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.math.system.plant.DCMotor;
+import frc.com.simulation.ModuleSteerSim;
+
 public class WheelSim extends Wheel {
 
     private static final class Constants {
-        // TODO: create an int called numMotors and initialize to 1
-        // TODO: create a DCMotor called dcMotor and initialize with DCMotor.getNEO
+        private static final int numMotors = 1;
+        private static final DCMotor dcMotor = DCMotor.getNEO(numMotors);
         private static final double kS = 0.0;
     }
 
-    // TODO: create a SimDouble field called simRotations
-    // TODO: create a SimDouble field called simRPM
-    // TODO: create a SimDouble field called simCurrent
-    // TODO: create a SimDouble field called simVolts
-    // TODO: create a LinearWheelSim field called wheelSim
+    private final SimDouble simRotations;
+    private final SimDouble simRPM;
+    private final SimDouble simCurrent;
+    private final SimDouble simVolts;
+    private final ModuleSteerSim weelSim;
 
     public WheelSim(int moduleNumber) {
         super(Constants.kS);
-        // TODO: initialize wheelSim
-        // TODO: create a SimDevice called simDevice and initialize with SimDevice.create("NEO", moduleNumber + 20)
+        weelSim = new ModuleSteerSim(Wheel.Constants.kV, Wheel.Constants.kA, Constants.dcMotor);
+        SimDevice simDevice = SimDevice.create("NEO", moduleNumber + 10);
         // TODO: initialize simRotations with simDevice.createDouble("Rotations", Direction.kBidir, 0.0)
         // TODO: intialize simRPM with simDevice.createDouble("RPM", Direction.kBidir, 0.0)
         // TODO: initialize simCurrent with simDevice.createDouble("Amps", Direction.kBidir, 0.0)

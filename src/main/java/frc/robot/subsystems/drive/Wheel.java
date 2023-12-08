@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
@@ -36,7 +37,7 @@ public abstract class Wheel {
         private static final double kP = controller.getK().get(0, 0);
         private static final double kI = 0.0;
         private static final double kD = 0.0;
-        private static final double wheelRadiusMeters = Units.inchesToMeters(4.0 / 2.0);
+        protected static final double wheelRadiusMeters = Units.inchesToMeters(4.0 / 2.0);
     }
 
     private final TrapezoidProfile trapezoidProfile;
@@ -72,13 +73,11 @@ public abstract class Wheel {
         State current = new State(measurementVelocity, getAccelerationMetersPerSecondSquared());
         State achievableSetpoint = trapezoidProfile.calculate(measurementVelocity, goal, current);
         double feedbackVoltage = pidController.calculate(measurementVelocity, metersPerSecond);
-        // TODO: create a double called feedforwardVoltage and initialize wiht
-        // simpleMotorFeedforward.calculate(measurementVelocity,
-        // achievableSetpoint.position, dtSeconds)
-        // TODO: create a double called voltage as the sum of the two previous voltages
-        // TODO: clamp voltage using MathUtil.clamp(voltage, -12.0, 12.0);
-        // TODO: setInputVoltage to voltage
-        // TODO: set lastVelocity to measurementVelocity
+        double feedforwardVoltage = simpleMotorFeedforward.calculate(measurementVelocity, achievableSetpoint.position, Constants.dtSeconds);
+        double voltage = feedbackVoltage + feedforwardVoltage;
+        voltage = MathUtil.clamp(voltage, -12.0, 12.0);
+        setInputVoltage(voltage);
+        lastVelocity = measurementVelocity;
     }
 
     public abstract void setInputVoltage(double voltage);
