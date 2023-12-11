@@ -6,6 +6,7 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.com.simulation.ModuleSteerSim;
 
@@ -27,10 +28,10 @@ public class WheelSim extends Wheel {
         super(Constants.kS);
         weelSim = new ModuleSteerSim(Wheel.Constants.kV, Wheel.Constants.kA, Constants.dcMotor);
         SimDevice simDevice = SimDevice.create("NEO", moduleNumber + 10);
-        // TODO: initialize simRotations with simDevice.createDouble("Rotations", Direction.kBidir, 0.0)
-        // TODO: intialize simRPM with simDevice.createDouble("RPM", Direction.kBidir, 0.0)
-        // TODO: initialize simCurrent with simDevice.createDouble("Amps", Direction.kBidir, 0.0)
-        // TODO: initialize simVolts with simDevice.createDouble("Volts", Direction.kBidir, 0.0)
+        simRotations = simDevice.createDouble("Rotations", Direction.kBidir, 0.0);
+        simRPM = simDevice.createDouble("RPM", Direction.kBidir, 0.0);
+        simCurrent = simDevice.createDouble("Amps", Direction.kBidir, 0.0);
+        simVolts = simDevice.createDouble("Volts", Direction.kBidir, 0.0);
     }
 
     @Override
