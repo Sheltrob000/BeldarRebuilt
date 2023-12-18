@@ -8,6 +8,7 @@ import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.math.system.plant.DCMotor;
+import frc.com.simulation.LinearWheelSim;
 import frc.com.simulation.ModuleSteerSim;
 
 public class WheelSim extends Wheel {
@@ -22,11 +23,11 @@ public class WheelSim extends Wheel {
     private final SimDouble simRPM;
     private final SimDouble simCurrent;
     private final SimDouble simVolts;
-    private final ModuleSteerSim weelSim;
+    private final LinearWheelSim wheelSim;
 
     public WheelSim(int moduleNumber) {
         super(Constants.kS);
-        weelSim = new ModuleSteerSim(Wheel.Constants.kV, Wheel.Constants.kA, Constants.dcMotor);
+        wheelSim = new LinearWheelSim(Wheel.Constants.kV, Wheel.Constants.kA, Constants.dcMotor);
         SimDevice simDevice = SimDevice.create("NEO", moduleNumber + 10);
         simRotations = simDevice.createDouble("Rotations", Direction.kBidir, 0.0);
         simRPM = simDevice.createDouble("RPM", Direction.kBidir, 0.0);
@@ -36,8 +37,7 @@ public class WheelSim extends Wheel {
 
     @Override
     public double getPositionMeters() {
-        // TODO: return getPositonMeters() from wheelSim
-        return 0.0; // TODO: remove this line when done.
+        return wheelSim.getPositionMeters();
     }
 
     @Override
