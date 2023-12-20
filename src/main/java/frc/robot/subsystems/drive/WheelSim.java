@@ -42,22 +42,21 @@ public class WheelSim extends Wheel {
 
     @Override
     public double getVelocityMetersPerSecond() {
-        // TODO: return getVelocityMetersPerSecond() from wheelSim
-        return 0.0; // TODO: remove this line when done.
+        return wheelSim.getVelocityMetersPerSecond();
     }
 
     @Override
     public void setPositionMeters(double meters) {
-        // TODO: setPositionMeters for wheelSim
+        wheelSim.setPositionMeters(meters);
     }
 
     @Override
     public void setInputVoltage(double voltage) {
-        // TODO: set simVolts to voltage
-        // TODO: setInputVoltage for wheelSim
-        // TODO: set simRotations with wheelSim.getPositionMeters() * Wheel.Constants.gearing / 2 / Math.PI / Wheel.Constants.wheelRadiusMeters
-        // TODO: set simRPM with wheelSim.getVelocityMetersPerSecond() * Wheel.Constants.gearing / 2 / Math.PI / Wheel.Constants.wheelRadiusMeters
-        // TODO: set simCurrent with wheelSim.getCurrentDrawAmps()
-        // TODO: update wheelSim with dtSeconds
+        simVolts.set(voltage);
+        wheelSim.setInputVoltage(voltage);
+        simRotations.set(wheelSim.getPositionMeters() * Wheel.Constants.gearing / 2 / Math.PI / Wheel.Constants.wheelRadiusMeters);
+        simRPM.set(wheelSim.getVelocityMetersPerSecond() * Wheel.Constants.gearing / 2 / Math.PI / Wheel.Constants.wheelRadiusMeters);
+        simCurrent.set(wheelSim.getCurrentDrawAmps());
+        wheelSim.update(Wheel.Constants.dtSeconds);
     }
 }
