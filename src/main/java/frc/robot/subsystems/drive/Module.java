@@ -1,48 +1,50 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.com.sensors.absoluteAngle.AbsAngleEncoder;
+import frc.com.sensors.absoluteAngle.AbsAngleEncoderCanCoder;
+import frc.com.sensors.absoluteAngle.AbsAngleEncoderSim;
+import frc.robot.Robot;
 
 public class Module {
 
     private static final class Constants {
-        // TODO: create a String called absAngleEncoderCanBus and intialize to
-        // "CANIVORE"
+        private static final String absAngleEncoderCanBus = "CANIVORE";
     }
 
     private final Steer steer;
-    // TODO: Make a field for the Wheel object named wheel
-    // TODO: Make a field for the AbsAngleEncoder called absAngEncoder
-    // TODO: make a field for moduleNumber
+    private final Wheel wheel;
+    private final AbsAngleEncoder absAngleEncoder;
+    private final int moduleNumber;
 
     public Module(int moduleNumber) {
+        this.moduleNumber = moduleNumber;
         steer = RobotBase.isSimulation()
                 ? new SteerSim(moduleNumber)
                 : new SteerReal(moduleNumber);
-        // TODO: initialize the wheel in a similar fashion to the steer
-        // TODO: FREEBEE initialize absAngEncoder just comment out
-        // absAngleEncoder = RobotBase.isSimulation()
-        // ? new AbsAngleEncoderSim(
-        // () -> steer.getPositionDegrees(),
-        // "CANCoder",
-        // moduleNumber + 30)
-        // : new AbsAngleEncoderCanCoder(
-        // moduleNumber + 30,
-        // Constants.absAngleEncoderCanBus);
+        wheel = RobotBase.isSimulation()
+                ? new WheelSim(moduleNumber)
+                : new WheelReal(moduleNumber);
+
+        absAngleEncoder = RobotBase.isSimulation()
+                ? new AbsAngleEncoderSim(
+                        () -> steer.getPositionDegrees(),
+                        "CANCoder",
+                        moduleNumber + 30)
+                : new AbsAngleEncoderCanCoder(
+                        moduleNumber + 30,
+                        Constants.absAngleEncoderCanBus);
     }
 
     public SwerveModulePosition getSwerveModulePosition() {
-        // TODO: create a double called positionMeters and initialize from wheel's
-        // getPositionMeters() method
-        // TODO: create a double called positionDegrees and initialize from steer's
-        // getPositionDegrees() method
-        // TODO: create a Rotation2d object called angle and intialize using
-        // Rotation2d's static fromDegrees() method.
-        // TODO: create a SwerveModulePosition object called swerveModulePosition and
-        // intialize using positionMeters and angle
-        // TODO: return swerveModulePosition
-        return null; // TODO: remove this line when done.
+        double positionMeters = wheel.getPositionMeters();
+        double positionDegrees = steer.getPositionDegrees();
+        Rotation2d angle = Rotation2d.fromDegrees(positionDegrees);
+        SwerveModulePosition swerveModulePosition = new SwerveModulePosition(positionMeters, angle);
+        return swerveModulePosition;
     }
 
     public SwerveModuleState getSwerveModuleState() {
