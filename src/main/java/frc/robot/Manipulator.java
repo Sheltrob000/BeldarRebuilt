@@ -3,18 +3,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.arm.ArmSubsystem;
-import frc.robot.subsystems.arm.ArmSubsystemReal;
-import frc.robot.subsystems.arm.ArmSubsystemSim;
-import frc.robot.subsystems.claw.ClawSubsystem;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorSubsystemReal;
-import frc.robot.subsystems.elevator.ElevatorSubsystemSim;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystemReal;
 import frc.robot.subsystems.grabber.GrabberSubsystemSim;
-import frc.robot.subsystems.tilt.TiltSubsystem;
 
 public class Manipulator {
 
@@ -26,38 +19,28 @@ public class Manipulator {
 
         }
     }
-
-    private final ArmSubsystem armSubsystem;
-    private final ElevatorSubsystem elevatorSubsystem;
     private final GrabberSubsystem grabberSubsystem;
-    private final ClawSubsystem clawSubsystem;
-    private final TiltSubsystem tiltSubsystem;
 
     public Manipulator() {
-        armSubsystem = RobotBase.isSimulation()
-                ? new ArmSubsystemSim()
-                : new ArmSubsystemReal();
-        elevatorSubsystem = RobotBase.isSimulation()
-                ? new ElevatorSubsystemSim()
-                : new ElevatorSubsystemReal();
-        grabberSubsystem = RobotBase.isSimulation()
-                ? new GrabberSubsystemSim()
-                : new GrabberSubsystemReal();
-        clawSubsystem = new ClawSubsystem();
-        tiltSubsystem = new TiltSubsystem();
+        // TODO: ANGEL: initialize clawSubsystem to new ClawSubsystem();
+        // TODO: KEITH: initialize tiltSubsystem to new TiltSubsystem();
+
+        if(RobotBase.isSimulation()){
+            grabberSubsystem = new GrabberSubsystemSim();
+        }else{
+            grabberSubsystem = new GrabberSubsystemReal();
+        };
     }
 
     public void addToDashboard() {
-        SmartDashboard.putData(armSubsystem);
-        SmartDashboard.putData(elevatorSubsystem);
+        // TODO: ANGEL: use the SmartDashboard.putData() method to put clawSubsystem to
+        // the Dashboard
+        // TODO: KEITH: use the SmartDashboard.putData() method to put tiltSubsystem to
+        // the Dashboard
         SmartDashboard.putData(grabberSubsystem);
-        SmartDashboard.putData(clawSubsystem);
-        SmartDashboard.putData(tiltSubsystem);
     }
 
     public void setDefaultCommands() {
-        armSubsystem.setDefaultCommand();
-        elevatorSubsystem.setDefaultCommand();
         grabberSubsystem.setDefaultCommand();
     }
 
@@ -65,8 +48,24 @@ public class Manipulator {
         // TODO:
     }
 
-    public void addTestingCommandsToDashboard(){
+    public void addTestingCommandsToDashboard() {
+        // TODO: ANGEL create a Command called testOPENCommand using clawSubsystem's
+        // createSetStateCommand()
+        // TODO: ANGEL create a Command called testCLOSEDCommand using clawSubsystem's
+        // createSetStateCommand()
 
+        // TODO: KEITH create a Command called testFULLcommand using tiltSubsystem's
+        // createSetStateCommand()
+        // TODO: KEITH create a Command called testLONGcommand using tiltSubsystem's
+        // createSetStateCommand()
+        // TODO: KEITH create a Command called testSHORTcommand using tiltSubsystem's
+        // createSetStateCommand()
+        // TODO: KEITH create a Command called testNONEcommand using tiltSubsystem's
+        // createSetStateCommand()
+
+
+        Command testGrabber750RPMCommand = grabberSubsystem.createDriveAtVelocityCommand(750);
+        Command testGrabber650RPMCommand = grabberSubsystem.createDriveAtVelocityCommand(650);
     }
 
     public void bindArmManualControlToController(
@@ -92,15 +91,38 @@ public class Manipulator {
 
     }
 
-    public void bindTiltManualControlToController(
+    public void bindTiltManualControlToControllerPOV(
             CommandXboxController controller) {
-        // TODO:
+        // TODO: KEITH: create a Trigger called fullTrigger and initialize with
+        // controller.povUp();
+        // TODO: KEITH: create a Trigger called longTrigger and initialize with
+        // controller.povUp();
+        // TODO: KEITH: create a Trigger called shortTrigger and initialize with
+        // controller.povRight();
+        // TODO: KEITH: create a Trigger called NoneTrigger and initialize with
+        // controller.povDown();
+        // TODO: KEITH: create a Command called fullCommand and initialize with the
+        // createSetStateCommand from tiltSubsystem;
+        // TODO: KEITH: create a Command called longCommand and initialize with the
+        // createSetStateCommand from tiltSubsystem;
+        // TODO: KEITH: create a Command called shortCommand and initialize with the
+        // createSetStateCommand from tiltSubsystem;
+        // TODO: KEITH: create a Command called noneCommand and initialize with the
+        // createSetStateCommand from tiltSubsystem;
+        // TODO: KEITH: bind the fullTrigger to the fullCommand with fullTrigger's
+        // onTrue method
 
     }
 
     public void bindClawManualControlToController(
-            CommandXboxController controller) {
-        // TODO:
+            CommandXboxController controller,
+            XboxController.Button button) {
+        // TODO: ANGEL: create a Command called toggleCommand using clawSubsystems
+        // createToggleCommand method
+        // TODO: ANGEL: create a Trigger called trigger and initialize to
+        // controller.button(button.value)
+        // TODO: ANGEL: bind the trigger to the toggleCommand using trigger's onTrue
+        // method.
 
     }
 

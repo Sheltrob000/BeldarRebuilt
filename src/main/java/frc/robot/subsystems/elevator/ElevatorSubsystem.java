@@ -4,7 +4,25 @@
 
 package frc.robot.subsystems.elevator;
 
+import javax.swing.undo.StateEdit;
+
+import com.ctre.phoenix6.StatusSignal;
+
+import edu.wpi.first.math.StateSpaceUtil;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.LinearQuadraticRegulator;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -12,66 +30,50 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
 
         protected static class Constants {
                 protected static final double dtSeconds = 0.020;
-                // TODO: create an int called deviceId and set equal to 16
-                // TODO: create a double called grearing and set equal to 16
-                // TODO: create a double called drumRadiusMeters and set to
-                // Units.inchesToMeters(0.88)
-                // TODO: create a double called kG and set equal to 0.26374
-                // TODO: create a double called kV and set equal to 14.346
-                // TODO: create a double called kA and set equal to 0.20482
-                // TODO: create a double called maxPositionErrorMeters and set equal to 0.125
-                // TODO: create a double called maxVelocityErrorMetersPerSec and set equal to
-                // 24.178
-                // TODO: create a LinearSystem<N2, N1, N1> called positionPlant and initialize
-                // with LinearSystemId.identifyPositionSystem
-                // TODO: create a Vector<N2> called positionQelms and initialize with
-                // VecBuilder.fill(maxPositionErrorMeters, maxVelocityErrorMetersPerSec)
-                // TODO: create a Vector<N1> called positionRelms and initialize with
-                // VecBuilder.fill(RobotController.getBatteryVoltage())
-                // TODO: create a LinearQuadraticRegular<N2, N1, N1> called positionController
-                // and initialize with appropriate values
-                // TODO: create a LinearSystem<N1, N1, N1> called velocityPlant and initialize
-                // with LinearSystemId.identifyVelocitySystem
-                // TODO: create a Vector<N1> called velocityQelsm and initialize with
-                // VecBuilder.fill(maxVelocityErrorMetersPerSec)
-                // TODO: create a LinearQuadraticRegular<N1, N1, N1> called velocityController
-                // and initialize with LinearQuadraticRegulator<N1, N1, N1> velocityController
-                // with appropriate constants
-                // TODO: create a double called kPPosition and initialize to
-                // positionController.getK().get(0, 0)
-                // TODO: create a double called kIPosition and set equal to 0.0
-                // TODO: create a double called kDPosition and initialize to
-                // positionController.getK().get(0, 1)
-                // TODO: create a double called kPVelocity and initialize to
-                // velocityController.getK().get(0, 0)
-                // TODO: create a double called kIVelocity and set equal to 0.0
-                // TODO: create a double called kDVelocity and set equal to 0.0
-                // TODO: create a double called tolerance and set equal to 0.0239 * pi *
-                // drumRadiusMeters / gearing
+                protected static final int deviceId = 16;
+                protected static final double gearing = 16;
+                protected static final double drumRadiusMeters = Units.inchesToMeters(0.88);
+                protected static final double kG = 0.26374;
+                protected static final double kV = 14.346;
+                protected static final double kA = 0.20482;
+                protected static final double maxPositionErrorMeters = 0.125;
+                protected static final double maxVelocityErrorMetersPerSec = 24.178;
+                protected static final LinearSystem<N2, N1, N1> positionPlant = LinearSystemId.identifyPositionSystem(kV, kA);
+                protected static final Vector<N2> positionQelms = VecBuilder.fill(maxPositionErrorMeters, maxVelocityErrorMetersPerSec);
+                protected static final Vector<N1> positionRelms = VecBuilder.fill(RobotController.getBatteryVoltage());
+                protected static final LinearQuadraticRegulator<N2, N1, N1> positionController = new LinearQuadraticRegulator<>(positionPlant, positionQelms, positionRelms, dtSeconds);
+                protected static final LinearSystem<N1, N1, N1> velocityPlant = LinearSystemId.identifyVelocitySystem(kV, kA);
+                protected static final Vector<N1> velocityQelsm = VecBuilder.fill(maxVelocityErrorMetersPerSec);
+                protected static final Vector<N1> velocityRelms = VecBuilder.fill(RobotController.getBatteryVoltage());
+                protected static final LinearQuadraticRegulator<N1, N1, N1> velocityController = new LinearQuadraticRegulator<N1, N1, N1>(velocityPlant, velocityQelsm, velocityRelms, dtSeconds);
+                protected static final double kPPosition = positionController.getK().get(0,0);
+                protected static final double kIPosition = 0.0;
+                protected static final double kDPosition = positionController.getK().get(0,1);                
+                protected static final double kPVelocity = velocityController.getK().get(0,0);
+                protected static final double kIVelocity = 0.0;
+                protected static final double kDVelocity = 0.0;
+                protected static final double tolerance =  0.0239 * Math.PI * drumRadiusMeters / gearing;
         }
 
-        // TODO: create a TrapezoidProfile called positionTrapezoidProfile
-        // TODO: create a TrapezoidProfile called velocityTrapezoidProfile
-        // TODO: create a PIDController called positionPIDController
-        // TODO: create a PIDController called velocityPIDController
-        // TODO: create an ElevatorFeedforward called elevatorFeedForward
+        TrapezoidProfile positionTrapezoidProfile;
+        TrapezoidProfile velocityTrapezoidProfile;
+        PIDController positionPIDController;
+        PIDController velocityPIDController;
+        ElevatorFeedforward elevatorFeedForward;
 
-        // TODO: create a double called lastVelocity
+        double lastVelocity;
 
         public ElevatorSubsystem(double kS) {
-                // TODO: initialize elevatorFeedForward with appropriate constants
-                // TODO: create a double called maxVelocity and initialize to
-                // elevatorFeedForward.maxachievableVelocity(12, 0)
-                // TODO: create a double called maxAcceleration and intialize to
-                // elevatorFeedForward.maxAchievableAcceleration(12, 0)
-                // TODO: create a Constraints object called positionConstraints and intialize with
-                // maxVelocity and maxAcceleration
-                // TODO: create a Constraints object called velocityContraints and intialize with maxAcceleration and Double.PositiveInfinity
-                // TODO: initialize positionTrapezoidProfile
-                // TODO: initialize velocityTrapezoidProfile
-                // TODO: initialize positionPIDController
-                // TODO: intialize velocityPIDController
-                // TODO: initialize lastVelocity to 0.0
+                elevatorFeedForward = new ElevatorFeedforward(Constants.kA, Constants.kG, Constants.kV);
+                double maxVelocity = elevatorFeedForward.maxAchievableVelocity(12, 0);
+                double maxAcceleration = elevatorFeedForward.maxAchievableAcceleration(12, 0);
+                Constraints positionConstraints = new Constraints(maxVelocity, maxAcceleration); 
+                Constraints velocityConstraints = new Constraints(maxAcceleration, Double.POSITIVE_INFINITY);
+                TrapezoidProfile positionTrapezoidProfile;
+                TrapezoidProfile velocityTrapezoidProfile;
+                PIDController positionPIDController;
+                PIDController velocityPIDController;
+                double lastVelocity = 0.0;
         }
 
         public abstract double getPositionMeters();
@@ -79,10 +81,9 @@ public abstract class ElevatorSubsystem extends SubsystemBase {
         public abstract double getVelocityMetersPerSecond();
 
         public double getAccelerationMetersPerSecondSquared() {
-                // TODO: create a double called currentVelocityMetersPerSecond and set equal to
-                // getVelocityMetersPerSecond();
-                // TODO: return (currentVelocityMetersPerSecond - lastVelocity) / 0.020
-                return 0.0; // TODO: remove this line when finished
+
+                double currentVelocityMetersPerSecond = getVelocityMetersPerSecond();
+                return (currentVelocityMetersPerSecond - lastVelocity) / 0.020;
         }
 
         public abstract void setPositionMeters(double meters);

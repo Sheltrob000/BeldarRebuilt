@@ -1,6 +1,18 @@
 package frc.robot.subsystems.grabber;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.LinearQuadraticRegulator;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -8,51 +20,49 @@ public abstract class GrabberSubsystem extends SubsystemBase {
 
   protected static class Constants {
     protected static final double dtSeconds = 0.020;
-    // TODO: create an integer called leftGripperDeviceId and set equal to 14
-    // TODO: create an integer called rightGripperDeviceId and set equal to 24
-    // TODO: create a double called gearing and set equal to 12
-    // TODO: create a double called kV and set equal to 0.121272
-    // TODO: create a double called kA and set equal to 0.00251016
-    // TODO: create a double called maxVelocityErrorRadPerSec and set equal to 46.3
-    // TODO: create a LinearSystem<N1, N1, N1> called plant and initialize to
-    // LinearSystemId.identifyVelocitySystem
-    // TODO: create a Vector<N1> called qelms and initialize to
-    // VecBuilder.fill(maxVelocityErrorRadPerSec)
-    // TODO: create a Vector<N1> called relms and initialize to
-    // VecBuilder.fill(RobotController.getBatteryVoltage())
-    // TODO: create a LinearQuadraticRegulator<N1, N1, N1> called velocityController
-    // TODO: create a double called kPVelocity and set equal to
-    // velocityController.getK().get(0, 0)
-    // TODO: create a double called KIVelocity and set equal to 0.0
-    // TODO: create a double called KDVelocity and set equal to 0.0
+    protected final static int leftGripperDeviceId = 14;
+    protected final static int rightGripperDeviceId = 24;
+    protected final static double gearing = 12;
+    protected final static double kV = 0.121272;
+    protected final static double kA = 0.00251016;
+    private final static double maxVelocityErrorRadPerSec = 46.3;
+
+    final static LinearSystem<N1, N1, N1> plant = LinearSystemId.identifyVelocitySystem(kV,kA);
+    private final static Vector<N1> qelms = VecBuilder.fill(maxVelocityErrorRadPerSec);
+    private final static Vector<N1> relms = VecBuilder.fill(RobotController.getBatteryVoltage());
+    protected final static LinearQuadraticRegulator<N1, N1, N1> velocityController = new LinearQuadraticRegulator<>(
+      plant, 
+      qelms, 
+      relms, 
+      dtSeconds);
+    private final static double kPVelocity = velocityController.getK().get(0, 0);
+    private final static double KIVelocity = 0.0;
+    private final static double KDVelocity = 0.0;
   }
 
   // fields
-  // TODO: declare a TrapezoidProfile variable for leftTrapezoidProfile
-  // TODO: declare a TrapezoidProfile variable for rightTrapezoidProfile
-  // TODO: declare a PIDController variable for leftVelocityPIDController
-  // TODO: declare a PIDController variable for rightVelocityPIDController
-  // TODO: declare a SimpleMotorFeedforward variable for
-  // leftSimpleMotorFeedforward
-  // TODO: declare a SimpleMotorFeedforward varialbe for
-  // rightSimpleMotorFeedForward
-  // TODO: declare a variable called lastVelocityLeftGripper
-  // TODO: declare a variable called lastVelocityRightGripper
+  private final TrapezoidProfile leftTrapezoidProfile;
+  private final TrapezoidProfile rightTrapezoidProfile;
+  private final PIDController leftVelocityPIDController;
+  private final PIDController rightVelocityPIDController;
+  private final SimpleMotorFeedforward leftSimpleMotorFeedforward;
+  private final SimpleMotorFeedforward rightSimpleMotorFeedforward;
+  private double lastVelocityLeftGripper;
+  private double lastVelocityRightGripper;  
 
   // constructor
   public GrabberSubsystem(double kS) {
-    // TODO: initialize leftSimpleMotorFeedForward with appropriate constants
-    // TODO: intialize rightSimpleMotorFeedForward with approrpiate constants
-    // TODO: create a double called maxAcceleration and intialize to
-    // leftSimpleMotorFeedForward.maxAchievableAcceleration(12, 0)
-    // TODO: create a Constraints object called velocityContraints and intialize
-    // with maxAcceleration and Double.PositiveInfinity
-    // TODO: initialize leftTrapezoidProfile with appropriate constants
-    // TODO: intialize rightTrapezoidProfile with appropriate constants
-    // TODO: initialize leftVelocityPIDController with appropriate constants
-    // TODO: initailize rightVelocityPIDController with appropriate constants
-    // TODO: initialize lastVelocityLeftGripper to 0.0
-    // TODO: initialize lastVelocityRightGripper to 0.0
+    leftSimpleMotorFeedforward = new SimpleMotorFeedforward(kS, Constants.kV, Constants.kA);
+    rightSimpleMotorFeedforward = new SimpleMotorFeedforward(kS, Constants.kV, Constants.kA);
+    var maxVelocity = leftSimpleMotorFeedforward.maxAchievableVelocity(12, 0);
+    var maxAcceleration = leftSimpleMotorFeedforward.maxAchievableAcceleration(12, 0);
+    var constraints = new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration);
+    leftTrapezoidProfile = new TrapezoidProfile(constraints);
+    rightTrapezoidProfile = new TrapezoidProfile(constraints);
+    leftVelocityPIDController = new PIDController(Constants.kPVelocity, Constants.KIVelocity, Constants.KDVelocity);
+    rightVelocityPIDController =  new PIDController(Constants.kPVelocity, Constants.KIVelocity, Constants.KDVelocity);
+    lastVelocityLeftGripper = 0.0;
+    lastVelocityRightGripper = 0.0;
   }
 
   // telemetry methods
@@ -65,44 +75,38 @@ public abstract class GrabberSubsystem extends SubsystemBase {
   public abstract double getRightGripperVelocityRadPerSec();
 
   public double getLeftGripperAccelerationRadPerSecondSquared() {
-    // TODO: create a double called currentVelocity and get from leftGripperSim in
-    // radpersec
-    // TODO: return (currentVelocity - lastVelocityLeftGripper) / 0.020
-    return 0.0; // TODO: remove this line when done
+    double currentVelocity = getLeftGripperVelocityRadPerSec();
+    return (currentVelocity - lastVelocityLeftGripper) / 0.020;
   }
 
   public double getRightGripperAccelerationRadPerSecondSquared() {
-    // TODO: create a double called currentVelocity and get from rightGripperSim in
-    // radpersec
-    // TODO: return (currentVelocity - lastVelocityRightGripper) / 0.020
-    return 0.0; // TODO: remove this line when done
+    double currentVelocity = getRightGripperVelocityRadPerSec();
+    return (currentVelocity - lastVelocityRightGripper) / 0.020;
   }
 
   // control methods
   public void driveLeftGripperAtVelocity(double rpm) {
-    // TODO: create a double called measurementVelocity and get from
-    // getLeftGripperVelocityRadPerSec
-    // TODO: create a double called setpoint and get from
-    // Units.rotationsPerMinuteToRadiansPerSecond(rpm)
-    // TODO: create a State called current and use measurementVelocity for position
-    // and getLeftGripperAcceleration for velocity
-    // TODO: create a State called goal and use setpoint for position and 0.0 for
-    // velocity
-    // TODO: create a State called achievableSetpoint and calculate from
-    // leftTrapezoidProfile.
-    // TODO: create a double called feedbackVoltage enad calculate from
-    // leftVelocityPIDController using measurement Velocity and
-    // achievableSetpoint.position
-    // TODO: create a double called feedforwardVoltage and get from
-    // leftSimpleMotorFeedForward using measurementVelocity,
-    // achievableSetpoint.position, and dtSeconds
-    // TODO: create a double called voltage and add two previous voltages
-    // TODO: set leftSimVolts to voltage
-    // TODO: setInputVoltage on leftGripperSim
+    double measurementVelocity = getLeftGripperVelocityRadPerSec();
+    double setpoint = Units.rotationsPerMinuteToRadiansPerSecond(rpm);
+    State current = new State(measurementVelocity, getLeftGripperAccelerationRadPerSecondSquared());
+    State goal = new State(setpoint, 0.0);
+    State achievableSetpoint = leftTrapezoidProfile.calculate(Constants.dtSeconds, goal, current);
+    double feedbackVoltage = leftSimpleMotorFeedforward.calculate(measurementVelocity, achievableSetpoint.position);
+    double feedforwardVoltage = leftSimpleMotorFeedforward.calculate(measurementVelocity,achievableSetpoint.position, Constants.dtSeconds);
+    double voltage = feedforwardVoltage + feedbackVoltage; 
+    setLeftGripperInputVoltage(voltage);
   }
 
   public void driveRightGripperAtVelocity(double rpm) {
-    // TODO: same code as driveLeftGripperAtVelocity but for rightGripper
+    double measurementVelocity = getRightGripperVelocityRadPerSec();
+    double setpoint = Units.rotationsPerMinuteToRadiansPerSecond(rpm);
+    State current = new State(measurementVelocity, getRightGripperAccelerationRadPerSecondSquared());
+    State goal = new State(setpoint, 0.0);
+    State achievableSetpoint = rightTrapezoidProfile.calculate(Constants.dtSeconds, goal, current);
+    double feedbackVoltage = rightSimpleMotorFeedforward.calculate(measurementVelocity, achievableSetpoint.position);
+    double feedforwardVoltage = rightSimpleMotorFeedforward.calculate(measurementVelocity,achievableSetpoint.position, Constants.dtSeconds);
+    double voltage = feedforwardVoltage + feedbackVoltage; 
+    setRightGripperInputVoltage(voltage);
   }
 
   public abstract void setLeftGripperInputVoltage(double voltage);
@@ -111,31 +115,34 @@ public abstract class GrabberSubsystem extends SubsystemBase {
 
   // command creation methods
   public Command createDriveAtVelocityCommand(double rpm) {
-    // TODO: create a Runnable called resetVelocityPIDControllersCommandRunnable and
-    // reset both PIDControllers
-    // TODO: create a runOnce command called resetVelocityPIDControllersCommand
-    // using previous runnable
-    // TODO: create a Runnable called driveGrabberAtVelocityCommandRunnable and set
-    // left to rpm and right to -rpm
-    // TODO: create a run command called driveGrabberAtVelocityCommand using
-    // previous runnable
-    // TODO: create a runnable called stopGrabberCommandRunnable that sets each
-    // Gripper's inputVoltage to 0 and each simVolts to 0
-    // TODO: create a Command called commmand set equal to
-    // resetVelocityPIDControllesCommand.andThen(driveGrabberAtVelocityCommand).finallyDo(stopGrabberCommandRunnable)
-    // TODO: setName of command to "Drive at " + rpm
-    // TODO: return command
-    return null; // TODO: remove this line when done
+    Runnable resetVelocityPIDController = () -> {
+      leftVelocityPIDController.reset();
+      rightVelocityPIDController.reset();;
+    };
+    Command resetVelocityPIDControllerCommand = runOnce(resetVelocityPIDController);
+
+    Runnable driveGrabberAtVelocity = () -> {
+      driveLeftGripperAtVelocity(rpm);
+      driveRightGripperAtVelocity(-rpm);
+    };
+    Command driveGrabberAtVelocityCommand = run(driveGrabberAtVelocity);
+
+    Runnable stopGrabber = () -> {
+      setLeftGripperInputVoltage(0);
+      setRightGripperInputVoltage(0);
+    };
+    Command command = resetVelocityPIDControllerCommand.andThen(driveGrabberAtVelocityCommand).finallyDo(stopGrabber);
+
+    command.setName("Drive at " + rpm);
+    return command;
   }
 
   public void setDefaultCommand() {
-    // TODO: this.setDefaultCommand(createDriveAtVelocityCommand(0.0))
+    this.setDefaultCommand(createDriveAtVelocityCommand(0.0));
   }
 
   @Override
   public void periodic() {
-    // TODO: lastVelocityLeftGripper = getLeftGripperVelocityRadPerSec and also for
-    // right
   }
 
   // initSendable handles Dashboard

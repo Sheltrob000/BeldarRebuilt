@@ -1,0 +1,11 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/ArmSubsystemSim": "Subsystem",
+      "/SmartDashboard/Drive at 750.0": "Command",
+      "/SmartDashboard/ElevatorSubsystemSim": "Subsystem",
+      "/SmartDashboard/GrabberSubsystemSim": "Subsystem"
+    }
+  }
+}
